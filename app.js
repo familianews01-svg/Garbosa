@@ -9,7 +9,16 @@ const ICONS = {
 const KEY = 'garbosa-demo';
 const PASS = '1234'; // senha de demonstração do painel
 
-const DEF = {name:'Garbosa', whats:'', logo:'', products:[
+const THEMES = {
+  neon:   {name:'Neon Roxo',       bg:'#0B0A12', p:'#7C3AED', s:'#3B82F6', text:'#F3F0FF'},
+  oceano: {name:'Azul Oceano',     bg:'#06101C', p:'#2563EB', s:'#06B6D4', text:'#EAF4FF'},
+  ouro:   {name:'Preto e Dourado', bg:'#0A0A0A', p:'#8F6508', s:'#D4A537', text:'#F5F1E6'},
+  verde:  {name:'Verde Tech',      bg:'#07110C', p:'#15803D', s:'#0EA5E9', text:'#ECFDF3'},
+  fogo:   {name:'Vermelho Fogo',   bg:'#120808', p:'#DC2626', s:'#F97316', text:'#FFF1F0'},
+  claro:  {name:'Claro',           bg:'#F6F4FF', p:'#6D28D9', s:'#2563EB', text:'#1A1530'}
+};
+
+const DEF = {name:'Garbosa', whats:'', logo:'', theme:'neon', custom:null, products:[
   {id:1, name:'Smartphone X Pro', price:1899, cat:'celulares'},
   {id:2, name:'Smartphone Lite 128GB', price:999, cat:'celulares'},
   {id:3, name:'Fone Over-Ear Bluetooth', price:249.9, cat:'fones'},
@@ -110,6 +119,48 @@ $('checkout').onclick = () => {
   window.open('https://wa.me/' + num + '?text=' + encodeURIComponent('Olá! Quero fazer este pedido:\n' + lines.join('\n')), '_blank');
 };
 
+/* ---------- Temas ---------- */
+function currentTheme() {
+  if (S.theme === 'custom' && S.custom) return S.custom;
+  return THEMES[S.theme] || THEMES.neon;
+}
+function applyTheme() {
+  const t = currentTheme(), r = document.documentElement.style;
+  r.setProperty('--bg', t.bg);
+  r.setProperty('--purple', t.p);
+  r.setProperty('--blue', t.s);
+  r.setProperty('--text', t.text);
+}
+function isLight(hex) {
+  const n = parseInt(hex.slice(1), 16);
+  const lum = (0.299 * (n >> 16) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255)) / 255;
+  return lum > 0.6;
+}
+function renderThemes() {
+  const box = $('themes');
+  box.textContent = '';
+  Object.entries(THEMES).forEach(([k, t]) => {
+    const b = el('button', 'tbtn' + (S.theme === k ? ' on' : ''));
+    const dot = el('i');
+    dot.style.background = 'linear-gradient(135deg,' + t.p + ',' + t.s + ')';
+    b.append(dot, el('span', '', t.name));
+    b.onclick = () => { S.theme = k; save(); applyTheme(); renderThemes(); syncPickers(); };
+    box.appendChild(b);
+  });
+}
+function syncPickers() {
+  const t = currentTheme();
+  $('cP').value = t.p.toLowerCase();
+  $('cS').value = t.s.toLowerCase();
+  $('cBg').value = t.bg.toLowerCase();
+}
+$('applyColors').onclick = () => {
+  const bg = $('cBg').value;
+  S.theme = 'custom';
+  S.custom = {name:'Personalizado', bg, p:$('cP').value, s:$('cS').value, text: isLight(bg) ? '#1A1530' : '#F3F0FF'};
+  save(); applyTheme(); renderThemes();
+};
+
 /* ---------- Painel ---------- */
 Object.entries(CATS).forEach(([k, v]) => { const o = el('option', '', v); o.value = k; $('pCat').appendChild(o); });
 
@@ -130,7 +181,7 @@ $('btnAdmin').onclick = () => {
   if (prompt('Senha do painel (demo: 1234)') !== PASS) return;
   $('fName').value = S.name;
   $('fWhats').value = S.whats;
-  renderPList();
+  renderPList(); renderThemes(); syncPickers();
   $('admin').showModal();
 };
 $('closeAdmin').onclick = () => $('admin').close();
@@ -164,4 +215,4 @@ $('addProd').onclick = () => {
   renderPList(); renderGrid();
 };
 
-renderBrand(); renderChips(); renderGrid(); renderCart();
+applyTheme(); renderBrand(); renderChips(); renderGrid(); renderCart();
