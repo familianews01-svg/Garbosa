@@ -53,6 +53,16 @@
   <label>Logo (imagem até 300 KB)<input id="fLogo" type="file" accept="image/*"></label>
   <div class="row"><button id="saveCfg">Salvar</button><button id="rmLogo" class="x">Remover logo</button></div>
 
+  <h3>Tema e cores</h3>
+  <div class="themes" id="themes"></div>
+  <div class="colors">
+    <label>Principal<input id="cP" type="color" value="#7c3aed"></label>
+    <label>Secundária<input id="cS" type="color" value="#3b82f6"></label>
+    <label>Fundo<input id="cBg" type="color" value="#0b0a12"></label>
+  </div>
+  <p class="tip">Para cores personalizadas, prefira tons médios ou escuros na principal e na secundária, porque o texto dos botões é branco.</p>
+  <button id="applyColors">Aplicar cores personalizadas</button>
+
   <h3>Adicionar produto</h3>
   <label>Nome<input id="pName"></label>
   <label>Preço (R$)<input id="pPrice" type="number" step="0.01" min="0"></label>
